@@ -1,0 +1,2 @@
+# Ejecutables compilados (se distribuyen aparte, no en git)
+*.exe
