@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:">
+<title>Cuadre Mensual</title>
+<style>
+  :root {
+    --bg: #07061a;
+    --card: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.12);
+    --text: #f2f0ff;
+    --muted: #a49fc9;
+    --neon-1: #ff2fd6;
+    --neon-2: #22e6ff;
+    --neon-3: #b6ff3b;
+    --neon-4: #ffb21f;
+    --danger: #ff4d6d;
+    --ok: #3bffb0;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+  input { user-select: text; }
+
+  /* ---------- Fondo animado ---------- */
+  #stars { position: fixed; inset: 0; z-index: 0; }
+  .blob {
+    position: fixed; border-radius: 50%; filter: blur(90px); opacity: .55; z-index: 0;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .blob.b1 { width: 520px; height: 520px; background: var(--neon-1); top: -160px; left: -120px; }
+  .blob.b2 { width: 480px; height: 480px; background: #6a2bff; bottom: -180px; right: -100px; animation-duration: 22s; }
+  .blob.b3 { width: 360px; height: 360px; background: var(--neon-2); top: 40%; left: 45%; opacity: .3; animation-duration: 26s; }
+  @keyframes drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(80px, 60px) scale(1.15); }
+    100% { transform: translate(-60px, 30px) scale(.9); }
+  }
+  .grid-floor {
+    position: fixed; left: -50%; right: -50%; bottom: -40%; height: 80%; z-index: 0;
+    background-image:
+      linear-gradient(rgba(34, 230, 255, .18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 47, 214, .18) 1px, transparent 1px);
+    background-size: 60px 60px;
+    transform: perspective(500px) rotateX(65deg);
+    animation: floor 4s linear infinite;
+    mask-image: linear-gradient(to top, black 10%, transparent 70%);
+  }
+  @keyframes floor { to { background-position: 0 60px, 0 0; } }
+
+  /* ---------- Layout ---------- */
+  .app {
+    position: relative; z-index: 1; height: 100vh;
+    display: grid; grid-template-rows: auto 1fr; gap: 16px; padding: 16px 20px 20px;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .08);
+  }
+
+  /* ---------- Barra superior: ahorro total ---------- */
+  .top {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; padding: 14px 22px;
+    position: relative; overflow: hidden;
+  }
+  .top::before {
+    content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: inherit;
+    background: conic-gradient(from var(--ang, 0deg), var(--neon-1), var(--neon-2), var(--neon-3), var(--neon-4), var(--neon-1));
+    opacity: .25; animation: spin 6s linear infinite;
+  }
+  @property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+  @keyframes spin { to { --ang: 360deg; } }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 24px;
+    background: linear-gradient(135deg, var(--neon-1), #6a2bff); box-shadow: 0 0 24px rgba(255, 47, 214, .6);
+    animation: bob 3s ease-in-out infinite;
+  }
+  @keyframes bob { 50% { transform: translateY(-4px) rotate(-6deg); } }
+  .brand h1 { margin: 0; font-size: 20px; letter-spacing: .5px; }
+  .brand h1 span { background: linear-gradient(90deg, var(--neon-2), var(--neon-1)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .brand small { color: var(--muted); font-size: 12px; }
+
+  .savings { display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .savings .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 2px; text-align: right; line-height: 1.4; }
+  .savings .label b { color: var(--neon-3); display: block; font-size: 11px; letter-spacing: 1px; }
+  .pig { font-size: 34px; animation: wiggle 2.4s ease-in-out infinite; filter: drop-shadow(0 0 12px rgba(182, 255, 59, .6)); }
+  @keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+  .money-big {
+    font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--neon-3);
+    text-shadow: 0 0 18px rgba(182, 255, 59, .55); background: transparent; border: 0; outline: 0;
+    width: 260px; text-align: left; font-family: inherit;
+    border-bottom: 2px dashed transparent; transition: border-color .2s;
+  }
+  .money-big:hover, .money-big:focus { border-bottom-color: rgba(182, 255, 59, .5); }
+
+  .month-picker { display: flex; align-items: center; gap: 8px; }
+  .month-picker button { width: 38px; height: 38px; }
+  .month-label {
+    min-width: 170px; text-align: center; font-weight: 700; font-size: 16px; text-transform: capitalize;
+  }
+  .month-label small { display: block; color: var(--muted); font-weight: 400; font-size: 11px; text-transform: none; }
+
+  button {
+    font-family: inherit; color: var(--text); background: rgba(255, 255, 255, .08); border: 1px solid var(--card-border);
+    border-radius: 12px; cursor: pointer; transition: transform .15s, background .2s, box-shadow .2s;
+  }
+  button:hover { background: rgba(255, 255, 255, .16); transform: translateY(-1px); }
+  button:active { transform: scale(.96); }
+
+  /* ---------- Cuerpo ---------- */
+  .main { display: grid; grid-template-columns: minmax(420px, 1.25fr) minmax(360px, 1fr); gap: 16px; min-height: 0; }
+  .col { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+
+  .income { padding: 18px 22px; display: flex; align-items: center; gap: 16px; }
+  .income .ico { font-size: 34px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-6px); } }
+  .income label { display: block; color: var(--muted); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+  .income input {
+    width: 100%; background: transparent; border: 0; outline: 0; color: var(--neon-2);
+    font-size: 38px; font-weight: 800; font-family: inherit; font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 22px rgba(34, 230, 255, .55);
+  }
+  .income input::placeholder { color: rgba(34, 230, 255, .3); }
+
+  .expenses { padding: 16px 14px 14px 22px; display: flex; flex-direction: column; min-height: 0; flex: 1; }
+  .expenses header { display: flex; justify-content: space-between; align-items: center; padding-right: 8px; margin-bottom: 10px; }
+  .expenses h2 { margin: 0; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .add-btn {
+    padding: 8px 14px; font-weight: 700; font-size: 13px;
+    background: linear-gradient(135deg, var(--neon-1), #6a2bff); border: 0; box-shadow: 0 0 18px rgba(255, 47, 214, .45);
+  }
+  .add-btn:hover { background: linear-gradient(135deg, #ff5ae0, #7d45ff); box-shadow: 0 0 28px rgba(255, 47, 214, .7); }
+
+  .list { overflow-y: auto; padding-right: 8px; display: flex; flex-direction: column; gap: 8px; }
+  .list::-webkit-scrollbar { width: 8px; }
+  .list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .15); border-radius: 8px; }
+
+  .row {
+    display: grid; grid-template-columns: 10px 34px 1fr 190px 30px; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 14px; background: rgba(255, 255, 255, .04); border: 1px solid transparent;
+    transition: background .2s, border-color .2s, transform .2s;
+    animation: pop-in .45s cubic-bezier(.2, 1.4, .4, 1) both;
+  }
+  .row:hover { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .1); transform: translateX(3px); }
+  .row.removing { animation: pop-out .3s ease forwards; }
+  @keyframes pop-in { from { opacity: 0; transform: translateY(12px) scale(.96); } }
+  @keyframes pop-out { to { opacity: 0; transform: translateX(-40px) scale(.9); height: 0; padding: 0; margin: 0; } }
+  .dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; background: currentColor; }
+  .emoji { font-size: 22px; text-align: center; cursor: pointer; transition: transform .2s; }
+  .emoji:hover { transform: scale(1.25) rotate(12deg); }
+  .row input {
+    background: transparent; border: 0; outline: 0; color: var(--text); font-family: inherit; font-size: 15px; width: 100%;
+    padding: 6px 8px; border-radius: 8px; transition: background .2s;
+  }
+  .row input:focus { background: rgba(255, 255, 255, .08); }
+  .row input.val { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 16px; }
+  .row .del {
+    width: 30px; height: 30px; padding: 0; font-size: 14px; opacity: 0; border-color: transparent; background: transparent;
+  }
+  .row:hover .del { opacity: .8; }
+  .row .del:hover { background: rgba(255, 77, 109, .25); opacity: 1; }
+  .row.planilla { background: linear-gradient(90deg, rgba(255, 178, 31, .14), rgba(255, 178, 31, .03)); border-color: rgba(255, 178, 31, .25); }
+  .row.planilla .val { color: var(--neon-4); }
+  .badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle;
+    background: rgba(255, 178, 31, .2); color: var(--neon-4); border: 1px solid rgba(255, 178, 31, .4);
+  }
+  .row.ahorro { background: linear-gradient(90deg, rgba(182, 255, 59, .12), rgba(182, 255, 59, .02)); border-color: rgba(182, 255, 59, .22); }
+  .row.ahorro .val { color: var(--neon-3); }
+  .static-name { padding: 6px 8px; font-size: 15px; }
+
+  /* ---------- Resumen ---------- */
+  .summary { padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow-y: auto; }
+  .summary::-webkit-scrollbar { width: 8px; }
+  .summary::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .15); border-radius: 8px; }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .kpi { padding: 14px 16px; border-radius: 14px; background: rgba(255, 255, 255, .05); border: 1px solid var(--card-border); }
+  .kpi label { color: var(--muted); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+  .kpi .num { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .kpi.gastos .num { color: var(--neon-1); text-shadow: 0 0 16px rgba(255, 47, 214, .5); }
+
+  .restante {
+    position: relative; overflow: hidden; padding: 20px; border-radius: 16px; text-align: center;
+    background: linear-gradient(135deg, rgba(59, 255, 176, .16), rgba(34, 230, 255, .08)); border: 1px solid rgba(59, 255, 176, .35);
+    transition: background .4s, border-color .4s;
+  }
+  .restante.neg { background: linear-gradient(135deg, rgba(255, 77, 109, .22), rgba(255, 47, 214, .08)); border-color: rgba(255, 77, 109, .5); animation: shake .5s; }
+  @keyframes shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+  .restante::after {
+    content: ""; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .18), transparent); transform: skewX(-20deg);
+    animation: shine 4s ease-in-out infinite;
+  }
+  @keyframes shine { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+  .restante label { color: var(--muted); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; }
+  .restante .num { font-size: 44px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--ok); text-shadow: 0 0 26px rgba(59, 255, 176, .6); }
+  .restante.neg .num { color: var(--danger); text-shadow: 0 0 26px rgba(255, 77, 109, .6); }
+  .restante .mood { font-size: 13px; color: var(--muted); }
+
+  .perday { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .perday .hero {
+    display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-radius: 14px;
+    background: rgba(34, 230, 255, .08); border: 1px solid rgba(34, 230, 255, .3);
+  }
+  .perday .hero .num { font-size: 26px; font-weight: 800; color: var(--neon-2); font-variant-numeric: tabular-nums; text-shadow: 0 0 16px rgba(34, 230, 255, .5); }
+  .perday .hero small { color: var(--muted); display: block; font-size: 12px; }
+  .chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .chip {
+    padding: 8px; border-radius: 12px; text-align: center; background: rgba(255, 255, 255, .04); border: 1px solid var(--card-border);
+    transition: transform .2s, border-color .2s;
+  }
+  .chip.active { border-color: var(--neon-2); box-shadow: 0 0 14px rgba(34, 230, 255, .35); transform: translateY(-2px); }
+  .chip b { display: block; font-size: 12px; color: var(--muted); }
+  .chip span { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .chart { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: center; }
+  .chart svg { width: 150px; height: 150px; transform: rotate(-90deg); }
+  .chart svg circle { transition: stroke-dasharray .6s ease, stroke-dashoffset .6s ease; }
+  .legend { display: flex; flex-direction: column; gap: 4px; font-size: 12px; max-height: 150px; overflow-y: auto; }
+  .legend div { display: flex; align-items: center; gap: 8px; }
+  .legend i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .legend span:last-child { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
+  .actions button { padding: 12px; font-weight: 700; font-size: 13px; }
+  .actions .close-month { background: linear-gradient(135deg, var(--neon-3), #2bd47a); color: #0b1a05; border: 0; box-shadow: 0 0 18px rgba(182, 255, 59, .4); }
+  .actions .close-month:disabled { opacity: .45; cursor: default; transform: none; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 120px); z-index: 50;
+    padding: 12px 22px; border-radius: 14px; background: rgba(20, 16, 50, .92); border: 1px solid var(--card-border);
+    transition: transform .4s cubic-bezier(.2, 1.4, .4, 1); font-weight: 600;
+  }
+  .toast.show { transform: translate(-50%, 0); }
+
+  /* Selector de emoji */
+  .picker {
+    position: fixed; z-index: 60; display: none; grid-template-columns: repeat(8, 34px); gap: 4px; padding: 10px;
+    background: rgba(20, 16, 50, .96); border: 1px solid var(--card-border); border-radius: 14px; box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+  }
+  .picker.open { display: grid; animation: pop-in .25s ease; }
+  .picker button { width: 34px; height: 34px; font-size: 18px; padding: 0; border: 0; background: transparent; }
+
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 40; }
+
+  @media (max-width: 960px) {
+    body { overflow: auto; }
+    .app { height: auto; }
+    .main { grid-template-columns: 1fr; }
+    .top { grid-template-columns: 1fr; text-align: center; }
+    .brand, .month-picker { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+<div class="grid-floor"></div>
+<canvas id="confetti"></canvas>
+
+<div class="app">
+  <!-- Barra superior -->
+  <section class="card top">
+    <div class="brand">
+      <div class="logo">💸</div>
+      <div>
+        <h1>Cuadre <span>Mensual</span></h1>
+        <small>Mes a mes, cuentas claras 🌙</small>
+      </div>
+    </div>
+
+    <div class="savings">
+      <div class="pig">🐷</div>
+      <div class="label">Ahorro total<b id="savingsHint">incluye este mes</b></div>
+      <input id="savingsTotal" class="money-big" inputmode="numeric" title="Editable: haz clic para corregir el ahorro acumulado">
+    </div>
+
+    <div class="month-picker">
+      <button id="prevMonth" title="Mes anterior">◀</button>
+      <div class="month-label"><div id="monthName"></div><small id="monthDays"></small></div>
+      <button id="nextMonth" title="Mes siguiente">▶</button>
+    </div>
+  </section>
+
+  <section class="main">
+    <!-- Columna izquierda: ingreso y descuentos -->
+    <div class="col">
+      <div class="card income">
+        <div class="ico">🤑</div>
+        <div style="flex:1">
+          <label for="income">Lo ganado en el mes</label>
+          <input id="income" inputmode="numeric" placeholder="$ 0" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="card expenses">
+        <header>
+          <h2>Descuentos</h2>
+          <button class="add-btn" id="addRow">＋ Agregar campo</button>
+        </header>
+        <div class="list" id="list"></div>
+      </div>
+    </div>
+
+    <!-- Columna derecha: resumen -->
+    <div class="card summary col">
+      <div class="kpis">
+        <div class="kpi"><label>Ingreso</label><div class="num" id="kIncome">$ 0</div></div>
+        <div class="kpi gastos"><label>Total gastos</label><div class="num" id="kExpenses">$ 0</div></div>
+      </div>
+
+      <div class="restante" id="restanteBox">
+        <label>Restante</label>
+        <div class="num" id="kRemaining">$ 0</div>
+        <div class="mood" id="mood">Ingresa lo que te pagaron 👆</div>
+      </div>
+
+      <div class="perday">
+        <div class="hero">
+          <div><small>Disponible por día</small><small id="perDayLabel"></small></div>
+          <div class="num" id="kPerDay">$ 0</div>
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="hero" id="todayBox" style="display:none">
+          <div><small>Desde hoy hasta fin de mes</small><small id="todayLabel"></small></div>
+          <div class="num" id="kToday">$ 0</div>
+        </div>
+      </div>
+
+      <div class="chart">
+        <svg viewBox="0 0 42 42" id="donut"></svg>
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <div class="actions">
+        <button id="copy">📋 Copiar resumen</button>
+        <button id="closeMonth" class="close-month">✅ Cerrar mes</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="picker" id="picker"></div>
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

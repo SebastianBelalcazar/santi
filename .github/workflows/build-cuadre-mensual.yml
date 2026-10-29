@@ -1,0 +1,30 @@
+name: Build Cuadre Mensual (.exe)
+
+on:
+  push:
+    paths:
+      - "cuadre-mensual/**"
+      - ".github/workflows/build-cuadre-mensual.yml"
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: cuadre-mensual
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cuadre-mensual/package-lock.json
+      - run: npm ci
+      - run: npm run dist:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CuadreMensual-windows
+          path: |
+            cuadre-mensual/dist/*.exe
+          if-no-files-found: error

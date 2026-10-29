@@ -1,0 +1,45 @@
+{
+  "name": "cuadre-mensual",
+  "productName": "Cuadre Mensual",
+  "version": "1.0.0",
+  "description": "App de escritorio para hacer el cuadre de gastos mes a mes",
+  "main": "main.js",
+  "author": "Santi",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable --x64 --publish never",
+    "dist:win": "electron-builder --win portable nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "38.8.6",
+    "electron-builder": "26.0.20"
+  },
+  "build": {
+    "appId": "com.santi.cuadremensual",
+    "productName": "Cuadre Mensual",
+    "files": [
+      "main.js",
+      "src/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "CuadreMensual-${version}-portable.exe"
+    },
+    "nsis": {
+      "artifactName": "CuadreMensual-${version}-instalador.exe",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}
