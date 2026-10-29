@@ -7,13 +7,15 @@ const COLORS = ['#ff2fd6', '#22e6ff', '#b6ff3b', '#ffe14d', '#9b6bff', '#ff6b6b'
 const EMOJIS = ['💜', '🏦', '🛵', '👩‍👧', '💡', '🔌', '🐷', '🏠', '🚗', '⛽', '🍔', '🛒', '📱', '🎮', '🎬', '🐶',
   '💊', '🎓', '✈️', '🎁', '💳', '🧾', '🍺', '☕', '👕', '💇', '🏋️', '📦', '🔧', '🌐', '🎵', '❤️'];
 const DEFAULT_ITEMS = [
-  { nombre: 'NU', icon: '💜' },
   { nombre: 'Bancolombia', icon: '🏦' },
+  { nombre: 'NU', icon: '💜' },
   { nombre: 'Rappi', icon: '🛵' },
   { nombre: 'Mamá', icon: '👩‍👧' },
-  { nombre: 'Servicios Floralia', icon: '💡' },
   { nombre: 'Servicios Limonar', icon: '🔌' },
+  { nombre: 'Servicios Floralia', icon: '💡' },
+  { nombre: 'Celular', icon: '📱' },
   { nombre: 'Ahorro', icon: '🐷', esAhorro: true },
+  { nombre: 'Paseo', icon: '✈️' },
 ];
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -320,7 +322,7 @@ $('copy').addEventListener('click', async () => {
     ...c.m.items.filter((i) => i.valor).map((i) => `${i.nombre || 'Sin nombre'}: ${fmt(i.valor)}`),
     `Total gastos: ${fmt(c.gastos)}`,
     `Restante: ${fmt(c.restante)}`,
-    `Por día (${c.dias} días): ${fmt(c.restante / c.dias)}`,
+    `Máx. gasto diario (${c.dias} días): ${fmt(c.restante / c.dias)}`,
   ];
   try { await navigator.clipboard.writeText(lines.join('\n')); toast('Resumen copiado 📋'); }
   catch (e) { toast('No se pudo copiar 😕'); }
